@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf8">
+<head>
+	<style>
+		@import url(https://fonts.googleapis.com/css?family=Lato:400,300,700);
+
+		body {
+		  background: linear-gradient(to right, #4568dc, #b06ab3);
+		  color: #D7D7EF;
+		  font-family: 'Lato', sans-serif;
+		}
+
+		h2 {
+		  text-align: center;
+		  margin: 50px 0;
+		}
+
+		.file-drop-area {
+		  border: 1px dashed rgba(255, 255, 255, 0.4);
+		  border-radius: 3px;
+		  position: relative;
+		  width: 450px;
+		  max-width: 100%;
+		  margin: 0 auto;
+		  padding: 26px 20px 30px;
+		  transition: 0.2s;
+		}
+
+		.is-active {
+		    background-color: rgba(0, 0, 0, 0.1);
+		    border-width: 2px;
+		}
+
+		.fake-btn {
+		  background-color: rgba(255, 255, 255, 0.04);
+		  border: 1px solid rgba(255, 255, 255, 0.1);
+		  border-radius: 3px;
+		  padding: 8px 15px;
+		  margin-right: 8px;
+		  font-size: 12px;
+		  text-transform: uppercase;
+		}
+
+		.file-msg {
+		  font-size: small;
+		  font-weight: 300;
+		  white-space: nowrap;
+		  overflow: hidden;
+		  text-overflow: ellipsis;
+		  display: inline-block;
+		  max-width: calc(100% - 130px);
+		  vertical-align: middle;
+		}
+
+		.file-input {
+		  position: absolute;
+		  left: 0;
+		  top: 0;
+		  height: 100%;
+		  width: 100%;
+		  cursor: pointer;
+		  opacity: 0;
+		}
+
+		.file-input:focus {
+		    outline: none;
+		  }
+
+	</style>
+
+	<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
+
+	<script type="text/javascript" charset="utf-8">
+    	var socket = io.connect('http://' + document.domain + ':' + location.port);
+    	socket.on('connect', function() {
+        	socket.emit('my event', {data: 'I\'m connected!'});
+    	});
+
+    	function drop_handler(e){
+    		console.log("drop");
+    		document.getElementsByClassName('file-drop-area')[0].classList.add('is-active');
+    		e.preventDefault();
+    		let dt = e.dataTransfer;   //DataTransferItemList interface
+    		if(dt)
+    			if(dt.items){
+    				console.log(dt.items);
+    				file = dt.items[0].getAsFile();
+    				console.log(file);
+	    			//socket.emit("FILE_UPLOAD", {data: file});
+    				regex = /\w+(\.jpg|\.png|\.jpeg|\.gif)/g ;
+    				if(regex.exec(file.name)){
+	    				document.getElementsByClassName('file-msg')[0].innerHTML = file.name;
+    					document.getElementById('preview').src = URL.createObjectURL(file);
+    				}
+    				else  //No image file extension
+    					document.getElementsByClassName('file-msg')[0].innerHTML = "Only image file types are allowed";
+    			}
+				else     //DataTransfer interface
+					for(let i=0 ; i<dt.files.length ; i++)
+						console.log("...file", dt.files[i].name);
+    		else{
+    				console.log("input file ");
+    				x = document.getElementsByClassName('file-input')[0];
+    				
+    				if(x.files)
+    					document.getElementsByClassName('file-msg')[0].innerHTML = x.files[0].name;
+    		}
+    	}
+
+    	function dragover_handler(e){
+    		console.log("dragOver");
+    		document.getElementsByClassName('file-drop-area')[0].classList.add('is-active');
+    		e.preventDefault();
+    	}
+
+    	function dragend_handler(e){
+    		console.log("dragEnd");
+    		let dt = e.dataTransfer;
+    		if(dt.items){
+    			for(let i=0 ; i<dt.items.length; i++){
+    				dt.items.remove(i);
+    			}
+    		}
+    		else
+    			dt.dataTransfer.clearData();
+    	}
+
+    	function fetch_data(e){
+    		e.preventDefault();
+    		console.log("triggered")
+    		let formData = new FormData();
+    		let fileField = document.querySelector('input[type="file"]');
+
+    		formData.append('file', fileField.files[0]);
+
+    		fetch('/upload', { method: 'POST', body: formData })
+    			.then(resp=>console.log(resp))
+    			.catch(err=>console.log("error",err))
+    			.then(resp=>console.log("success", resp));
+    	}
+ 
+	</script>
+
+	
+
+</head>
+<body>
+	<h2>Styling Native File Input</h2>
+	<form method="POST" enctype="multipart/form-data">
+		<div class="file-drop-area" id="drop_zone" ondrop="drop_handler(event);" ondragover="dragover_handler(event);" ondragend="dragend_handler(event);">
+  			<span class="fake-btn">Choose Image file</span>
+  			<span class="file-msg js-set-number">or drag and drop files here</span>
+  			<input class="file-input" type="file" name="file" onchange="drop_handler(event)">
+		</div>
+		<br/><br/>
+		<div class="file-drop-area">
+			<img width="100%" id="preview" class="" src=""/>
+			<span id="msg-status"></span>
+			<input type="submit" class="fake-btn" value="ANALYZE" onclick="fetch_data(event);"/>
+		</div>
+	</form>
+</body>
+</html>
