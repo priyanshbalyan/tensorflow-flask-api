@@ -102,7 +102,7 @@
     		else{
     				console.log("input file ");
     				x = document.getElementsByClassName('file-input')[0];
-    				
+    				document.getElementById('preview').src = URL.createObjectURL(x.files[0]);
     				if(x.files)
     					document.getElementsByClassName('file-msg')[0].innerHTML = x.files[0].name;
     		}
@@ -135,8 +135,8 @@
     		formData.append('file', fileField.files[0]);
 
     		fetch('/upload', { method: 'POST', body: formData })
-    			.then(resp=>console.log(resp))
-    			.catch(err=>console.log("error",err))
+    			.then(resp=>console.log("resp", resp))
+    			.catch(err=>console.log("error", err))
     			.then(resp=>console.log("success", resp));
     	}
  
