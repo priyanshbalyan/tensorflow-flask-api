@@ -29,7 +29,7 @@ def handle_file():
 	if request.method == 'POST':
 			f = request.files['file']
 			f.save('tmp.jpg')
-			answer = cfi.run_inference_on_image()
+			answer = cfi.run_inference_on_image('tmp.jpg')
 			print(os.path.join(os.path.dirname(__file__),'tmp.jpg'))
 	return jsonify(status="OK", results=answer)
 
