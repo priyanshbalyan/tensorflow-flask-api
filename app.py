@@ -29,9 +29,9 @@ def handle_file():
 	if request.method == 'POST':
 			f = request.files['file']
 			f.save('tmp.jpg')
-			#cfi.run_inference_on_image()
-			#print(os.path.join(os.path.dirname(__file__),'tmp.jpg'))
-	return jsonify(message="ack")
+			answer = cfi.run_inference_on_image()
+			print(os.path.join(os.path.dirname(__file__),'tmp.jpg'))
+	return jsonify(status="OK", results=answer)
 
 if __name__ == '__main__':
 	port = int(os.environ.get('PORT', 5000))
