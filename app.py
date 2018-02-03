@@ -32,7 +32,7 @@ def handle_file():
 			answer = cfi.run_inference_on_image('tmp.jpg')
 			print(answer)
 			print(os.path.join(os.path.dirname(__file__),'tmp.jpg'))
-	return jsonify(status="OK", human=answer[0], score=answer[1])
+	return jsonify(status="OK", human=answer[0], score=str(answer[1]))
 
 if __name__ == '__main__':
 	port = int(os.environ.get('PORT', 5000))
