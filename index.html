@@ -26,6 +26,7 @@
 		  margin: 0 auto;
 		  /*padding: 26px 20px 30px;*/
 		  transition: 0.2s;
+
 		}
 
 		.is-active {
@@ -52,6 +53,7 @@
 		  display: inline-block;
 		  max-width: calc(100% - 130px);
 		  vertical-align: middle;
+
 		}
 
 		.file-input {
@@ -68,8 +70,8 @@
 		    outline: none;
 		  }
 
-		.hide{ transform:scale(0); }
-		.show{ transform:scale(1); }
+		.show{ display:block; }
+		.hide{ display: none; }
 
 		.button{
 			box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
@@ -88,6 +90,7 @@
 		.button:hover{
 			transform:rotate(360deg);
 			background-color: orange;
+			animation-iteration-count: infinite;
 		}
 		.button:active{ 
 			transition: all 0s linear;
@@ -98,13 +101,27 @@
 			top:0;
 			left:0;
 			width:100%;
-			
+			transition: all 0.5s linear;
 			display:flex;
-			background-color: rgba(0,0,0,0.5);
+			
 		}
+		.bar:hover{ background-color: rgba(0,0,0,0.5); }
 		.text{
 			margin:auto auto;
 		}
+
+		.loading {
+			-webkit-animation: rotation 1s infinite linear;
+		}
+		@-webkit-keyframes rotation {
+		from {
+				-webkit-transform: rotate(0deg);
+		}
+		to {
+				-webkit-transform: rotate(359deg);
+		}
+
+}
 	</style>
 
 	<!-- <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script> -->
@@ -130,6 +147,7 @@
     				if(regex.exec(file.name)){
 	    				document.getElementsByClassName('file-msg')[0].innerHTML = file.name;
     					document.getElementById('preview').src = URL.createObjectURL(file);
+    					document.getElementsByClassName("hide")[0].classList.remove("hide");
     				}
     				else  //No image file extension
     					document.getElementsByClassName('file-msg')[0].innerHTML = "Only image file types are allowed";
@@ -141,8 +159,10 @@
     				console.log("input file ");
     				x = document.getElementsByClassName('file-input')[0];
     				document.getElementById('preview').src = URL.createObjectURL(x.files[0]);
-    				if(x.files)
+    				if(x.files){
     					document.getElementsByClassName('file-msg')[0].innerHTML = x.files[0].name;
+    					document.getElementsByClassName("hide")[0].classList.remove("hide");
+    				}
     		}
     	}
 
@@ -165,20 +185,29 @@
     	}
 
     	function fetch_data(e){
+    		let fileField = document.querySelector('input[type="file"]');
+    		console.log(fileField);
+    		e.target.classList.add("loading");
+    		if(fileField.files.length<=0) 
+    			return alert("You need to browse for an image file.");
     		text = document.getElementsByClassName('text')[0];
     		text.innerHTML = "Analyzing...";
     		e.preventDefault();
     		console.log("triggered")
     		let formData = new FormData();
-    		let fileField = document.querySelector('input[type="file"]');
-
+    		
     		formData.append('file', fileField.files[0]);
 
     		fetch('/upload', { method: 'POST', body: formData })
     			.then(resp=>resp.json())
-    			.catch(err=>console.log("error", err))
+    			.catch(err=>{
+    				console.log("error", err);
+    				text.innerHTML = err.message;
+    				e.target.classList.remove("loading");
+    			})
     			.then(data=>{
-    				text.innerHTML(data.human+"  ("+data.score+"% confidence)");
+    				text.innerHTML = data.human+"  ("+data.score+"% confidence)";
+    				e.target.classList.remove("loading");
     			});
     	}
  
@@ -188,7 +217,7 @@
 
 </head>
 <body>
-	<h2>Styling Native File Input</h2>
+	<h2>Image Recognition using Tensorflow API</h2>
 	<form method="POST" enctype="multipart/form-data">
 		<div class="file-drop-area" id="drop_zone" ondrop="drop_handler(event);" ondragover="dragover_handler(event);" ondragend="dragend_handler(event);" style="padding:26px 20px 30px">
   			<span class="fake-btn">Choose Image file</span>
@@ -196,7 +225,7 @@
   			<input class="file-input" type="file" name="file" onchange="drop_handler(event)">
 		</div>
 		<br/><br/>
-		<div class="file-drop-area">
+		<div class="file-drop-area hide">
 			<div class="messagebox">
 				<img width="100%" id="preview" src=""/>
 				<div class="bar">
