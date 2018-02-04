@@ -200,7 +200,10 @@
     		formData.append('file', fileField.files[0]);
 
     		fetch('/upload', { method: 'POST', body: formData })
-    			.then(resp=>resp.json())
+    			.then(resp=>{
+    				console.log(resp);
+    				return resp.json();
+    			})
     			.catch(err=>{
     				console.log("error", err);
     				text.innerHTML = err.message;
