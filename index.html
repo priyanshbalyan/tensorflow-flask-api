@@ -103,9 +103,10 @@
 			width:100%;
 			transition: all 0.5s linear;
 			display:flex;
+			background-color: rgba(0,0,0,0.5);
 			
 		}
-		.bar:hover{ background-color: rgba(0,0,0,0.5); }
+		/*.bar:hover{ background-color: rgba(0,0,0,0.5); }*/
 		.text{
 			margin:auto auto;
 		}
@@ -206,7 +207,7 @@
     				e.target.classList.remove("loading");
     			})
     			.then(data=>{
-    				text.innerHTML = data.human+"  ("+data.score+"% confidence)";
+    				text.innerHTML = data.human+"  ("+Math.round(data.score*100)+"% confidence)";
     				e.target.classList.remove("loading");
     			});
     	}
