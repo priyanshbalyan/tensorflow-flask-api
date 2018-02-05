@@ -32,11 +32,11 @@ def handle_file():
 		im = Image.open(f)
 		rgb_im = im.convert('RGB')
 		rgb_im.save('tmp.jpg')
-		# answer = cfi.run_inference_on_image('tmp.jpg')
-		# print(answer)
+		answer = cfi.run_inference_on_image('tmp.jpg')
+		print(answer)
 		# print(os.path.join(os.path.dirname(__file__),'tmp.jpg'))
-		# return jsonify(status="OK", human=answer[0], score=str(answer[1]))
-	# else:
+		return jsonify(status="OK", human=answer[0], score=str(answer[1]))
+	else:
 		return jsonify(status="ERROR")
 
 if __name__ == '__main__':
