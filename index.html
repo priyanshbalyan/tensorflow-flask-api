@@ -160,6 +160,7 @@
     				console.log("input file ");
     				x = document.getElementsByClassName('file-input')[0];
     				document.getElementById('preview').src = URL.createObjectURL(x.files[0]);
+    				
     				if(x.files){
     					document.getElementsByClassName('file-msg')[0].innerHTML = x.files[0].name;
     					document.getElementsByClassName("hide")[0].classList.remove("hide");
@@ -189,6 +190,7 @@
     		let fileField = document.querySelector('input[type="file"]');
     		console.log(fileField);
     		e.target.classList.add("loading");
+    		e.target.disabled = true;
     		if(fileField.files.length<=0) 
     			return alert("You need to browse for an image file.");
     		text = document.getElementsByClassName('text')[0];
@@ -208,13 +210,18 @@
     				console.log("error", err);
     				text.innerHTML = err.message;
     				e.target.classList.remove("loading");
+    				e.target.disabled = false;
     			})
     			.then(data=>{
-    				text.innerHTML = data.human+"  ("+Math.round(data.score*100)+"% confidence)";
+    				if(data.status=="OK")
+    					text.innerHTML = data.human+"  ("+Math.round(data.score*100)+"% confidence)";
+    				else
+    					text.innerHTML = "An error encountered.";
     				e.target.classList.remove("loading");
+    				e.target.disabled = false;
     			});
     	}
- 
+
 	</script>
 
 	
